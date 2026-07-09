@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Loan Calculator | Home Finder Real Estate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171C;
+    --panel:#1C2027;
+    --panel-2:#22262E;
+    --brass:#C79A4B;
+    --brass-dim:#8A6E3A;
+    --text:#EDEAE3;
+    --text-dim:#9AA0AC;
+    --line:#31363F;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ink);color:var(--text);font-family:'IBM Plex Sans',sans-serif;padding:32px 16px 64px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  .letterhead{border-bottom:1px solid var(--brass-dim);padding-bottom:20px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;}
+  .letterhead h1{font-family:'Spectral',serif;font-weight:500;font-size:26px;margin:0;}
+  .letterhead .ref{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);text-align:right;}
+
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--brass);margin:0 0 12px;}
+  .clause-block{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px 20px;margin-bottom:18px;}
+  .field-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:9px 0;border-bottom:1px dashed var(--line);}
+  .field-row:last-child{border-bottom:none;}
+  .field-row label{font-size:14px;color:var(--text);flex:1;}
+  .field-row .hint{display:block;font-size:11px;color:var(--text-dim);margin-top:2px;}
+  input[type=number]{width:140px;background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:8px 10px;border-radius:3px;text-align:right;}
+  input[type=number]::placeholder{color:var(--text-dim);opacity:0.5;}
+  input[type=number]:focus{outline:none;border-color:var(--brass);}
+  .locked{width:140px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text-dim);padding:8px 10px;}
+
+  details{background:var(--panel);border:1px solid var(--line);border-radius:4px;margin-bottom:14px;overflow:hidden;}
+  summary{cursor:pointer;list-style:none;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  summary::-webkit-details-marker{display:none;}
+  summary .stitle{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--brass);white-space:nowrap;}
+  summary .stotal{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:var(--text);flex:1;text-align:right;}
+  summary .sicon{font-size:18px;color:var(--text-dim);width:14px;text-align:center;}
+  details[open] summary{border-bottom:1px solid var(--line);}
+  .details-body{padding:16px 20px 4px;}
+
+  .result-line{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px dashed var(--line);}
+  .result-line:last-child{border-bottom:none;}
+  .result-line .rlabel{font-size:14px;color:var(--text-dim);}
+  .result-line .rvalue{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:var(--text);}
+  .result-line.total .rvalue{color:var(--brass);font-size:18px;}
+
+  select{background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:7px 10px;border-radius:3px;}
+  .toggle-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--text-dim);font-size:12px;padding:6px 12px;border-radius:3px;cursor:pointer;margin-bottom:10px;}
+  .toggle-btn.active{border-color:var(--brass);color:var(--brass);}
+
+  table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  th{text-align:right;color:var(--brass);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;}
+  th:first-child,td:first-child{text-align:left;}
+  td{text-align:right;padding:7px 6px;border-bottom:1px dashed var(--line);color:var(--text-dim);}
+  .table-scroll{max-height:400px;overflow-y:auto;margin-top:8px;}
+
+  .note{font-size:12px;color:var(--text-dim);line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
+  .footer{text-align:center;font-size:11px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;margin-top:36px;letter-spacing:0.5px;}
+  @media(max-width:480px){
+    .field-row{flex-direction:column;align-items:flex-start;}
+    input[type=number],.locked{width:100%;text-align:left;}
+    summary{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="letterhead">
+    <h1>Home Loan Calculator</h1>
+    <div class="ref">HOME FINDER REAL ESTATE<br>RERA No. 55736</div>
+  </div>
+
+  <p class="section-label">Property &amp; loan</p>
+  <div class="clause-block">
+    <div class="field-row">
+      <label>Property price (AED)</label>
+      <input type="number" id="price" placeholder="e.g. 4,000,000" step="1000">
+    </div>
+    <div class="field-row">
+      <label>Loan to value — LTV (%)<span class="hint">50% typical for non-resident buyers, up to 80% for UAE residents</span></label>
+      <input type="number" id="ltv" placeholder="e.g. 50" step="1" min="1" max="90">
+    </div>
+    <div class="field-row">
+      <label>Loan amount</label>
+      <span class="locked" id="loanAmountOut">—</span>
+    </div>
+    <div class="field-row">
+      <label>Down payment required</label>
+      <span class="locked" id="downPaymentOut">—</span>
+    </div>
+    <div class="field-row">
+      <label>Fixed rate (% p.a.)</label>
+      <input type="number" id="fixedRate" placeholder="e.g. 5.99" step="0.01">
+    </div>
+    <div class="field-row">
+      <label>Fixed period (years)</label>
+      <input type="number" id="fixedYears" placeholder="e.g. 2" step="1" min="0">
+    </div>
+    <div class="field-row">
+      <label>Margin over EIBOR (%)</label>
+      <input type="number" id="margin" placeholder="e.g. 2.99" step="0.01">
+    </div>
+    <div class="field-row">
+      <label>Tenure (months)</label>
+      <input type="number" id="tenure" placeholder="e.g. 149" step="1" min="12">
+    </div>
+  </div>
+
+  <details>
+    <summary>
+      <span class="stitle">EIBOR sensitivity</span>
+      <span class="stotal" id="sumEibor">—</span>
+      <span class="sicon" id="iconEibor">+</span>
+    </summary>
+    <div class="details-body">
+      <div class="field-row">
+        <label>Scenario A — 3-month EIBOR (%)<span class="hint">Current spot rate as of Jul 2026</span></label>
+        <input type="number" id="eiborA" placeholder="e.g. 3.6" step="0.05">
+      </div>
+      <div class="field-row">
+        <label>Scenario B — 3-month EIBOR (%)<span class="hint">Stress case, e.g. if rates rise</span></label>
+        <input type="number" id="eiborB" placeholder="e.g. 4.6" step="0.05">
+      </div>
+      <div class="result-line">
+        <span class="rlabel">Year 3+ EMI — Scenario A</span>
+        <span class="rvalue" id="emiAOut">—</span>
+      </div>
+      <div class="result-line">
+        <span class="rlabel">Year 3+ EMI — Scenario B</span>
+        <span class="rvalue" id="emiBOut">—</span>
+      </div>
+      <div class="note">EIBOR is a floating benchmark and resets every quarter. These are indicative estimates based on the rate entered — not a bank guarantee. Update the field with the live rate at time of use.</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="stitle">Cash required</span>
+      <span class="stotal" id="sumCash">—</span>
+      <span class="sicon" id="iconCash">+</span>
+    </summary>
+    <div class="details-body">
+      <div class="result-line"><span class="rlabel">Down payment</span><span class="rvalue" id="fDownPayment">—</span></div>
+      <div class="result-line"><span class="rlabel">DLD transfer fee (4%)</span><span class="rvalue" id="fDld">—</span></div>
+      <div class="result-line"><span class="rlabel">Agent commission (2% + 5% VAT)</span><span class="rvalue" id="fAgency">—</span></div>
+      <div class="result-line"><span class="rlabel">Registration trustee fee</span><span class="rvalue" id="fTrustee">—</span></div>
+      <div class="result-line"><span class="rlabel">Title deed &amp; admin (flat)</span><span class="rvalue" id="fTitle">—</span></div>
+      <div class="field-row">
+        <label>Bank valuation fee (AED, before VAT)</label>
+        <input type="number" id="valuationFee" placeholder="e.g. 3675" step="25">
+      </div>
+      <div class="result-line"><span class="rlabel">Bank valuation fee (+5% VAT)</span><span class="rvalue" id="fValuation">—</span></div>
+      <div class="result-line"><span class="rlabel">Mortgage registration (0.25% of loan + AED 290)</span><span class="rvalue" id="fMortReg">—</span></div>
+      <div class="result-line"><span class="rlabel">Bank arrangement fee (1% of loan + 5% VAT)</span><span class="rvalue" id="fBankArr">—</span></div>
+      <div class="result-line total"><span class="rlabel">Total cash required</span><span class="rvalue" id="fTotal">—</span></div>
+      <div class="note">Secondary market, mortgage purchase. Trustee fee is AED 4,200 flat for properties AED 500,000 and above, AED 2,100 flat below that.</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="stitle">Repayment schedule</span>
+      <span class="stotal" id="sumSchedule">—</span>
+      <span class="sicon" id="iconSchedule">+</span>
+    </summary>
+    <div class="details-body">
+      <div class="field-row">
+        <label>Schedule follows</label>
+        <select id="scheduleScenario">
+          <option value="A">Scenario A</option>
+          <option value="B">Scenario B</option>
+        </select>
+      </div>
+      <button class="toggle-btn active" id="btnYearly">Yearly</button>
+      <button class="toggle-btn" id="btnMonthly">Monthly</button>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th id="periodHeader">Year</th><th>EMI paid</th><th>Interest</th><th>Principal</th><th>Balance</th></tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <div class="note">Table reflects the rate path selected above: fixed rate for the fixed period, then the chosen EIBOR scenario + margin for the remainder of the tenure.</div>
+    </div>
+  </details>
+
+  <div class="footer">HOME FINDER REAL ESTATE · RERA 55736 · DUBAI</div>
+</div>
+
+<script>
+function fmt(n){ if(!isFinite(n) || n===null) return "—"; return "AED " + Math.round(n).toLocaleString('en-US'); }
+
+function emi(principal, annualRate, months){
+  if(months<=0) return 0;
+  var r = annualRate/12;
+  if(r===0) return principal/months;
+  var f = Math.pow(1+r, months);
+  return principal * r * f / (f-1);
+}
+
+document.querySelectorAll('details').forEach(function(d){
+  d.addEventListener('toggle', function(){
+    var icon = d.querySelector('.sicon');
+    if(icon) icon.textContent = d.open ? '−' : '+';
+  });
+});
+
+var scheduleMode = 'yearly';
+document.getElementById('btnYearly').addEventListener('click', function(e){
+  e.preventDefault();
+  scheduleMode='yearly'; this.classList.add('active');
+  document.getElementById('btnMonthly').classList.remove('active');
+  document.getElementById('periodHeader').textContent = 'Year';
+  calculate();
+});
+document.getElementById('btnMonthly').addEventListener('click', function(e){
+  e.preventDefault();
+  scheduleMode='monthly'; this.classList.add('active');
+  document.getElementById('btnYearly').classList.remove('active');
+  document.getElementById('periodHeader').textContent = 'Month';
+  calculate();
+});
+
+var ids = ['price','ltv','fixedRate','fixedYears','margin','tenure','eiborA','eiborB','valuationFee'];
+ids.forEach(function(id){ document.getElementById(id).addEventListener('input', calculate); });
+document.getElementById('scheduleScenario').addEventListener('change', calculate);
+
+function val(id){
+  var v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
+}
+
+function calculate(){
+  var price = val('price');
+  var ltvPct = val('ltv');
+  var fixedRateIn = val('fixedRate');
+  var fixedYears = val('fixedYears');
+  var margin = val('margin');
+  var tenure = val('tenure');
+  var eiborA = val('eiborA');
+  var eiborB = val('eiborB');
+  var valuationBase = val('valuationFee');
+
+  var haveLoanInputs = price!==null && ltvPct!==null;
+  var loanAmount = haveLoanInputs ? price * (ltvPct/100) : null;
+  var downPayment = haveLoanInputs ? price - loanAmount : null;
+
+  document.getElementById('loanAmountOut').textContent = fmt(loanAmount);
+  document.getElementById('downPaymentOut').textContent = fmt(downPayment);
+
+  var dld = price!==null ? price*0.04 : null;
+  var agency = price!==null ? price*0.02*1.05 : null;
+  var trustee = price!==null ? (price>=500000?4200:2100) : null;
+  var titleDeed = price!==null ? 580 : null;
+  var valuation = valuationBase!==null ? valuationBase*1.05 : null;
+  var mortReg = loanAmount!==null ? (loanAmount*0.0025)+290 : null;
+  var bankArr = loanAmount!==null ? loanAmount*0.01*1.05 : null;
+
+  var haveCash = [downPayment,dld,agency,trustee,titleDeed,valuation,mortReg,bankArr].every(function(v){return v!==null;});
+  var cashRequired = haveCash ? downPayment+dld+agency+trustee+titleDeed+valuation+mortReg+bankArr : null;
+
+  document.getElementById('fDownPayment').textContent = fmt(downPayment);
+  document.getElementById('fDld').textContent = fmt(dld);
+  document.getElementById('fAgency').textContent = fmt(agency);
+  document.getElementById('fTrustee').textContent = fmt(trustee);
+  document.getElementById('fTitle').textContent = fmt(titleDeed);
+  document.getElementById('fValuation').textContent = fmt(valuation);
+  document.getElementById('fMortReg').textContent = fmt(mortReg);
+  document.getElementById('fBankArr').textContent = fmt(bankArr);
+  document.getElementById('fTotal').textContent = fmt(cashRequired);
+  document.getElementById('sumCash').textContent = haveCash ? fmt(cashRequired) : "—";
+
+  var haveEmiInputs = loanAmount!==null && fixedRateIn!==null && fixedYears!==null && tenure!==null && margin!==null;
+  var emi1 = null, emiA = null, emiB = null, remainingMonths = 0, balanceAtSwitch = null, monthlyRate1 = null, monthsToRun = 0, floatingA = null, floatingB = null;
+
+  if(haveEmiInputs){
+    var fixedRate = fixedRateIn/100;
+    var fixedMonths = fixedYears*12;
+    emi1 = emi(loanAmount, fixedRate, tenure);
+    monthlyRate1 = fixedRate/12;
+    monthsToRun = Math.min(fixedMonths, tenure);
+
+    var balance = loanAmount;
+    for(var i=0;i<monthsToRun;i++){
+      var interest = balance*monthlyRate1;
+      balance -= (emi1 - interest);
+    }
+    balanceAtSwitch = balance;
+    remainingMonths = tenure - monthsToRun;
+
+    if(eiborA!==null){ floatingA = (eiborA/100) + (margin/100); emiA = remainingMonths>0 ? emi(balanceAtSwitch, floatingA, remainingMonths) : 0; }
+    if(eiborB!==null){ floatingB = (eiborB/100) + (margin/100); emiB = remainingMonths>0 ? emi(balanceAtSwitch, floatingB, remainingMonths) : 0; }
+  }
+
+  document.getElementById('emiAOut').textContent = emiA!==null ? fmt(emiA)+" / mo" : "—";
+  document.getElementById('emiBOut').textContent = emiB!==null ? fmt(emiB)+" / mo" : "—";
+
+  if(emiA!==null && emiB!==null){
+    document.getElementById('sumEibor').textContent = fmt(emiA) + " – " + fmt(emiB) + " / mo (Yr 3+)";
+  } else {
+    document.getElementById('sumEibor').textContent = "—";
+  }
+
+  var scenario = document.getElementById('scheduleScenario').value;
+  var floatingChosen = scenario==='A' ? floatingA : floatingB;
+  var emiChosen = scenario==='A' ? emiA : emiB;
+
+  var body = document.getElementById('scheduleBody');
+  body.innerHTML = '';
+
+  if(haveEmiInputs && emiChosen!==null){
+    var rows = [];
+    var bal = loanAmount;
+    var yearAgg = null;
+    for(var m=1; m<=tenure; m++){
+      var isFixedPhase = m<=monthsToRun;
+      var rate = isFixedPhase ? monthlyRate1 : (floatingChosen/12);
+      var currentEmi = isFixedPhase ? emi1 : emiChosen;
+      var interestM = bal*rate;
+      var principalM = currentEmi - interestM;
+      bal -= principalM;
+      if(bal<0) bal=0;
+
+      if(scheduleMode==='monthly'){
+        rows.push({label:'Month '+m, emi:currentEmi, interest:interestM, principal:principalM, balance:bal});
+      } else {
+        var yearIdx = Math.ceil(m/12);
+        if(!yearAgg || yearAgg.year!==yearIdx){
+          if(yearAgg) rows.push(yearAgg);
+          yearAgg = {year:yearIdx, label:'Year '+yearIdx, emi:0, interest:0, principal:0, balance:bal};
+        }
+        yearAgg.emi += currentEmi;
+        yearAgg.interest += interestM;
+        yearAgg.principal += principalM;
+        yearAgg.balance = bal;
+      }
+    }
+    if(scheduleMode==='yearly' && yearAgg) rows.push(yearAgg);
+
+    rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+r.label+'</td><td>'+fmt(r.emi)+'</td><td>'+fmt(r.interest)+'</td><td>'+fmt(r.principal)+'</td><td>'+fmt(r.balance)+'</td>';
+      body.appendChild(tr);
+    });
+    document.getElementById('sumSchedule').textContent = tenure + " months";
+  } else {
+    document.getElementById('sumSchedule').textContent = "—";
+  }
+}
+
+calculate();
+</script>
+</body>
+</html>
